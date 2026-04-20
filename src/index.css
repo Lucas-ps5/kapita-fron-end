@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 120 20% 98%;
+    --foreground: 150 30% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 10%;
+
+    --primary: 152 45% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 15% 93%;
+    --secondary-foreground: 150 30% 15%;
+
+    --muted: 150 10% 94%;
+    --muted-foreground: 150 10% 45%;
+
+    --accent: 152 35% 90%;
+    --accent-foreground: 152 45% 25%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --income: 152 55% 40%;
+    --expense: 0 72% 51%;
+
+    --border: 150 15% 88%;
+    --input: 150 15% 88%;
+    --ring: 152 45% 42%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 120 20% 98%;
+    --sidebar-foreground: 150 30% 10%;
+    --sidebar-primary: 152 45% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 152 35% 90%;
+    --sidebar-accent-foreground: 152 45% 25%;
+    --sidebar-border: 150 15% 88%;
+    --sidebar-ring: 152 45% 42%;
+  }
+
+  .dark {
+    --background: 150 20% 6%;
+    --foreground: 120 15% 95%;
+
+    --card: 150 20% 9%;
+    --card-foreground: 120 15% 95%;
+
+    --popover: 150 20% 9%;
+    --popover-foreground: 120 15% 95%;
+
+    --primary: 152 50% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 15% 15%;
+    --secondary-foreground: 120 15% 90%;
+
+    --muted: 150 15% 15%;
+    --muted-foreground: 150 10% 60%;
+
+    --accent: 152 30% 18%;
+    --accent-foreground: 152 50% 75%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --income: 152 55% 45%;
+    --expense: 0 62% 40%;
+
+    --border: 150 15% 18%;
+    --input: 150 15% 18%;
+    --ring: 152 50% 45%;
+
+    --sidebar-background: 150 20% 6%;
+    --sidebar-foreground: 120 15% 95%;
+    --sidebar-primary: 152 50% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 152 30% 18%;
+    --sidebar-accent-foreground: 152 50% 75%;
+    --sidebar-border: 150 15% 18%;
+    --sidebar-ring: 152 50% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
