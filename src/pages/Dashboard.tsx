@@ -132,7 +132,7 @@ export default function Dashboard() {
       <header className="flex items-center justify-between px-5 pt-6 pb-2 md:px-8">
         <div>
           <p className="text-sm text-muted-foreground">Bonjour 👋</p>
-          <h1 className="text-lg font-bold text-foreground md:text-xl">MONAYA</h1>
+          <h1 className="text-lg font-bold text-foreground md:text-xl">KAPITA</h1>
         </div>
         <button onClick={() => navigate('/settings')} className="rounded-full p-2 hover:bg-muted transition-colors md:hidden">
           <Settings className="h-5 w-5 text-muted-foreground" />

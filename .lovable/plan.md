@@ -1,5 +1,5 @@
 
-# MONAYA — Plan d'implémentation V1
+# KAPITA — Plan d'implémentation V1
 
 ## Vision
 Application web de suivi financier pour l'économie informelle camerounaise. Interface ultra-simple, mobile-first, permettant de voir son solde en un coup d'œil et d'enregistrer des transactions en moins de 10 secondes.

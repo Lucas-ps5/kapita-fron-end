@@ -52,7 +52,7 @@ export default function Auth() {
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
           <Wallet className="h-8 w-8 text-primary-foreground" />
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">MONAYA</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">KAPITA</h1>
         <p className="text-muted-foreground">Ton argent, simplifié.</p>
       </div>
 

@@ -86,7 +86,7 @@ export default function Onboarding() {
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
           <Wallet className="h-6 w-6 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Bienvenue sur MONAYA !</h1>
+        <h1 className="text-2xl font-bold text-foreground">Bienvenue sur KAPITA !</h1>
         <p className="text-sm text-muted-foreground">Personnalisons ton expérience</p>
       </div>
 

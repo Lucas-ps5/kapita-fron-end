@@ -27,7 +27,7 @@ export default function DesktopSidebar() {
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
           <Wallet className="h-5 w-5 text-primary-foreground" />
         </div>
-        <h1 className="text-xl font-extrabold text-foreground">MONAYA</h1>
+        <h1 className="text-xl font-extrabold text-foreground">KAPITA</h1>
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
