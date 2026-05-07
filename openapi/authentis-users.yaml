@@ -1,0 +1,387 @@
+---
+openapi: "3.0.3"
+info:
+  title: "cm.domeni.authentis-users"
+  description: "Demo use open APi for generate REST API endpoints"
+  version: "0.0.1"
+servers:
+- url: "https://localhost:8089"
+- url: "http://localhost:8089"
+paths:
+  /demo:
+    get:
+      tags:
+      - "Demo"
+      summary: "Demo Summary"
+      description: "Demo Description"
+      operationId: "fetchAllDemo"
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/DemoDTO"
+        "401":
+          description: "Unauthorized"
+    post:
+      tags:
+      - "Demo"
+      summary: "Create a new Demo"
+      description: "Creates a new Demo with the provided data"
+      operationId: "createDemo"
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: "Demo object to be created"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DemoDTO"
+      responses:
+        "201":
+          description: "Demo created successfully"
+          content:
+            application/json:
+              schema:
+                type: "string"
+                format: "uuid"
+        "400":
+          description: "Invalid input"
+        "401":
+          description: "Unauthorized"
+  /register:
+    post:
+      tags:
+      - "User"
+      summary: "register user"
+      description: "register user"
+      operationId: "register"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        "201":
+          description: "User created successfully"
+          content:
+            application/json:
+              schema:
+                type: "string"
+                format: "uuid"
+        "400":
+          description: "Bad request"
+        "409":
+          description: "this username already exist"
+  /auth/refresh:
+    post:
+      tags:
+      - "Auth"
+      summary: "Refresh JWT access token"
+      description: "Uses a refresh token to obtain a new JWT access token from Keycloak"
+      operationId: "refreshToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: "Token refreshed successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponse"
+        "400":
+          description: "Invalid or expired refresh token"
+        "401":
+          description: "Unauthorized client"
+        "403":
+          description: "Forbidden"
+        "502":
+          description: "Keycloak unavailable"
+  /auth/logout:
+    post:
+      tags:
+      - "Auth"
+      summary: "Logout user session"
+      description: "Invalidates refresh token and terminates Keycloak user session"
+      operationId: "logout"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "204":
+          description: "Logout completed successfully"
+        "400":
+          description: "Invalid or expired refresh token"
+        "401":
+          description: "Unauthorized client"
+        "403":
+          description: "Forbidden"
+        "502":
+          description: "Keycloak unavailable"
+  /auth/reset-password:
+    post:
+      tags:
+      - "Auth"
+      summary: "Reset password with token"
+      description: "Validates reset token and updates user password"
+      operationId: "resetPasswordWithToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "204":
+          description: "Password reset completed successfully"
+        "400":
+          description: "Invalid or expired reset token, or invalid password"
+        "401":
+          description: "Unauthorized client"
+        "403":
+          description: "Forbidden"
+        "502":
+          description: "Keycloak unavailable"
+  /user:
+    get:
+      tags:
+      - "User"
+      summary: "get user info"
+      description: "get user info including id, username, and all roles"
+      operationId: "fetchAllUsers"
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserDTO"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "User not found"
+  /role:
+    post:
+      tags:
+      - "Role"
+      summary: "create new role"
+      description: "create role"
+      operationId: "createRole"
+      security:
+      - oAuth:
+        - "role:create"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoleDTO"
+      responses:
+        "201":
+          description: "Role created successfully"
+          content:
+            application/json:
+              schema:
+                type: "string"
+                format: "uuid"
+        "409":
+          description: "this role already exist"
+  /users/{userId}/roles/{roleName}:
+    put:
+      tags:
+      - "User"
+      operationId: "addRoleToUser"
+      summary: "Add roles to a user"
+      parameters:
+      - in: "path"
+        name: "userId"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+        description: "The user ID"
+      - in: "path"
+        name: "roleName"
+        required: true
+        schema:
+          type: "string"
+        description: "The name of the role to be added"
+      security:
+      - oAuth:
+        - "role:assign"
+      responses:
+        "204":
+          description: "Roles added successfully"
+        "404":
+          description: "User/role not found"
+        "400":
+          description: "Invalid role name"
+    delete:
+      tags:
+      - "User"
+      summary: "Remove roles to a user"
+      description: "Remove roles  to a user"
+      operationId: "removeRoleToUser"
+      parameters:
+      - in: "path"
+        name: "userId"
+        required: true
+        schema:
+          type: "string"
+          format: "uuid"
+      - in: "path"
+        name: "roleName"
+        required: true
+        schema:
+          type: "string"
+          description: "The name of the role to be removed"
+      security:
+      - oAuth:
+        - "role:delete"
+      responses:
+        "204":
+          description: "Roles removed successfully"
+        "404":
+          description: "User/role not found"
+        "400":
+          description: "Invalid role name"
+components:
+  schemas:
+    DemoDTO:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        name:
+          type: "string"
+    UserDTO:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        userName:
+          type: "string"
+        email:
+          type: "string"
+          format: "email"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDate:
+          type: "string"
+          format: "date"
+        address:
+          $ref: "#/components/schemas/AddressDTO"
+    AddressDTO:
+      properties:
+        city:
+          type: "string"
+          description: "city of address"
+    CreateUser:
+      required:
+      - "userName"
+      - "email"
+      - "password"
+      type: "object"
+      properties:
+        userName:
+          type: "string"
+        email:
+          type: "string"
+          format: "email"
+        password:
+          type: "string"
+          writeOnly: true
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        birthDate:
+          type: "string"
+          format: "date"
+        address:
+          $ref: "#/components/schemas/AddressDTO"
+    CreateRoleDTO:
+      required:
+      - "name"
+      properties:
+        name:
+          type: "string"
+          description: "name of role"
+        description:
+          type: "string"
+          description: "description of role"
+    RefreshTokenRequest:
+      required:
+      - "refreshToken"
+      type: "object"
+      properties:
+        refreshToken:
+          type: "string"
+          writeOnly: true
+    RefreshTokenResponse:
+      type: "object"
+      properties:
+        accessToken:
+          type: "string"
+        tokenType:
+          type: "string"
+        expiresIn:
+          type: "integer"
+          format: "int64"
+        refreshToken:
+          type: "string"
+        refreshExpiresIn:
+          type: "integer"
+          format: "int64"
+        scope:
+          type: "string"
+    ResetPasswordRequest:
+      required:
+      - "resetToken"
+      - "newPassword"
+      type: "object"
+      properties:
+        resetToken:
+          type: "string"
+          writeOnly: true
+        newPassword:
+          type: "string"
+          format: "password"
+          minLength: 6
+          writeOnly: true
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+    oAuth:
+      type: "oauth2"
+      flows:
+        clientCredentials:
+          tokenUrl: "http://localhost:8080/realms/authentis-user/protocol/openid-connect/token"
+          scopes:
+            role:create: "Create role"
+            role:assign: "Assign role to user"
+            role:delete: "Remove role from user"

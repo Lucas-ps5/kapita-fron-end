@@ -1,0 +1,236 @@
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────
+
+  postgres:
+    image: postgres:17
+    container_name: domeni-postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: change-me
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init/01-create-microservice-databases.sh:/docker-entrypoint-initdb.d/01-create-microservice-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: domeni-kafka
+    user: "0:0"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: CONTROLLER://:9093,PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CLUSTER_ID: qS6LKfg2Qf6v9rSBOmkj-w
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+    ports:
+      - "9092:29092"
+    volumes:
+      - kafka_data:/tmp/kraft-combined-logs
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: domeni-keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: change-me
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: change-me
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: start
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  keycloak-bootstrap:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: domeni-keycloak-bootstrap
+    depends_on:
+      keycloak:
+        condition: service_started
+    entrypoint: ["/bin/sh", "/bootstrap/01-bootstrap-authentis-user.sh"]
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASSWORD: change-me
+      REALM_NAME: authentis-user
+      AUTHENTIS_USERS_CLIENT_SECRET: change-me
+      KAPITA_API_CLIENT_SECRET: change-me
+    volumes:
+      - ./infra/keycloak/bootstrap:/bootstrap:ro
+    networks:
+      - microservices_network
+
+  # ── Spring Cloud ─────────────────────────────────────────────
+
+  config-service:
+    image: ghcr.io/mrstive/config-service:latest
+    container_name: config-service
+    environment:
+      CONFIG_REPO_LOCATION: file:/config-repo
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8888'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  discovery-service:
+    image: ghcr.io/mrstive/discovery-service:latest
+    container_name: discovery-service
+    environment:
+      EUREKA_HOSTNAME: discovery-service
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/127.0.0.1/8761'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  gateway-service:
+    image: ghcr.io/mrstive/gateway-service:latest
+    container_name: gateway-service
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  # ── Microservices métier ─────────────────────────────────────
+
+  authentis-users:
+    image: ghcr.io/mrstive/authentis-users:latest
+    container_name: authentis-users-app
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: authentis-users-db
+      DB_USER: authentis-users
+      DB_PASSWORD: change-me
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      USER_CREATED_KAFKA_TOPIC: authentis.user.created
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
+      ISSUER_URI: http://keycloak:8080/realms/authentis-user
+      JWK_SET_URI: http://keycloak:8080/realms/authentis-user/protocol/openid-connect/certs
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: authentis-user
+      KEYCLOAK_ADMIN_CLIENT_ID: authentis-users
+      KEYCLOAK_ADMIN_CLIENT_SECRET: change-me
+      KEYCLOAK_TOKEN_CLIENT_ID: authentis-users
+      KEYCLOAK_TOKEN_CLIENT_SECRET: change-me
+    ports:
+      - "8089:8089"
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+  kapita:
+    image: ghcr.io/mrstive/kapita:latest
+    container_name: kapita-app
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: kapita_db
+      DB_USER: kapita
+      DB_PASSWORD: change-me
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAPITA_USER_CREATED_TOPIC: authentis.user.created
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-service:8888
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
+      ISSUER_URI: http://keycloak:8080/realms/authentis-user
+      JWK_SET_URI: http://keycloak:8080/realms/authentis-user/protocol/openid-connect/certs
+      JWT_AUDIENCE: kapita-api
+    ports:
+      - "8088:8080"
+    networks:
+      - microservices_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  kafka_data:
+
+networks:
+  microservices_network:
+    driver: bridge
