@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       login: keycloak.login,
       logout: keycloak.logout,
       token: keycloakInstance?.token,
-      refreshToken: () => keycloak.updateToken(30),
+      refreshToken: () => keycloak.updateToken(70),
     }),
     [authenticated, loading, userInfo, keycloakInstance],
   );

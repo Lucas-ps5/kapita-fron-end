@@ -1,0 +1,17 @@
+{
+    "title": "Créer un compte",
+    "description": "Commence à suivre tes finances",
+    "app_title": "KAPITA",
+    "app_description": "Ton argent, simplifié.",
+    "name": "Nom",
+    "name_placeholder": "Entrez votre nom",
+    "email": "Email",
+    "email_placeholder": "Entrez votre email",
+    "password": "Mot de passe",
+    "password_placeholder": "Entrez votre mot de passe",
+    "submit": "Créer mon compte",
+    "already_have_account": "Vous avez déjà un compte ?",
+    "login": "Se connecter",
+    "register_success": "Compte créé avec succès",
+    "register_error": "Erreur lors de la création du compte"
+}

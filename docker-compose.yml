@@ -77,6 +77,8 @@ services:
       postgres:
         condition: service_healthy
     command: start
+    volumes:
+      - ./dist_keycloak/keycloak-theme-for-kc-all-other-versions.jar:/opt/keycloak/providers/keycloak-theme.jar:ro
     networks:
       - microservices_network
     restart: unless-stopped

@@ -47,6 +47,7 @@ const providerInstance = {
       onLoad: "check-sso",
       checkLoginIframe: false,
       silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+      redirectUri: "http://localhost:5173/",
     });
 
     if (authenticated) {
@@ -109,4 +110,3 @@ const providerInstance = {
 export function loginProvider() {
   return providerInstance;
 }
-

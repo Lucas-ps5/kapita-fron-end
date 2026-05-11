@@ -10,6 +10,7 @@ import Tontines from "@/pages/Tontines";
 import Premium from "@/pages/Premium";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
+import Register from "@/pages/Register";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
         Component: SettingsPage,
       },
     ],
+  },
+  {
+    path: "/register",
+    Component: Register
   },
   { path: "*", Component: NotFound },
 ]);
