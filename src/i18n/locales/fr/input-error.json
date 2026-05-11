@@ -1,0 +1,8 @@
+{
+  "invalid_email": "Email invalide",
+  "password_too_short": "Le mot de passe doit contenir au moins 6 caractères",
+  "passwords_do_not_match": "Les mots de passe ne correspondent pas",
+  "field_required": "Ce champ est requis",
+  "name_too_short": "Le nom doit contenir au moins 2 caractères",
+  "name_too_long": "Le nom doit contenir au plus 50 caractères"
+}

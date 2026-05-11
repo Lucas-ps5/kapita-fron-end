@@ -1,11 +1,10 @@
-import { useAuth } from '@/hooks/useAuth';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
+import { useAuth } from "@/hooks/useAuth";
+import { Navigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Wallet } from "lucide-react";
 
 export default function Welcome() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { userInfo, loading, login } = useAuth();
 
   if (loading) {
     return (
@@ -15,7 +14,7 @@ export default function Welcome() {
     );
   }
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (userInfo) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
@@ -23,15 +22,18 @@ export default function Welcome() {
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary shadow-lg">
           <Wallet className="h-10 w-10 text-primary-foreground" />
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-foreground">KAPITA</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+          KAPITA
+        </h1>
         <p className="text-lg text-muted-foreground text-center max-w-xs">
-          Ton argent, simplifié. Suis tes entrées et sorties en moins de 10 secondes.
+          Ton argent, simplifié. Suis tes entrées et sorties en moins de 10
+          secondes.
         </p>
       </div>
 
       <Button
         className="h-16 w-full max-w-sm text-lg font-bold rounded-2xl shadow-lg"
-        onClick={() => navigate('/auth')}
+        onClick={() => login()}
       >
         Commencer
       </Button>

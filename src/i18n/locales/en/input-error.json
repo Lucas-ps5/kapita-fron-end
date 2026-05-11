@@ -1,0 +1,8 @@
+{
+  "name_too_short": "Name must be at least 2 characters long",
+  "name_too_long": "Name must be at most 50 characters long",
+  "invalid_email": "Invalid email address",
+  "password_too_short": "Password must be at least 6 characters long",
+  "passwords_do_not_match": "Passwords do not match",
+  "field_required": "This field is required"
+}

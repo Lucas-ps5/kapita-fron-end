@@ -1,0 +1,17 @@
+{
+    "app_title": "KAPITA",
+    "app_description": "Your money, simplified.",
+    "title": "Create an account",
+    "description": "Start tracking your finances",
+    "name": "Name",
+    "name_placeholder": "Enter your name",
+    "email": "Email",
+    "email_placeholder": "Enter your email",
+    "password": "Password",
+    "password_placeholder": "Enter your password",
+    "submit": "Create my account",
+    "already_have_account": "Already have an account?",
+    "login": "Log in",
+    "register_success": "Account created successfully",
+    "register_error": "Error creating account"
+}
